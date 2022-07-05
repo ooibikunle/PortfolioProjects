@@ -1,1 +1,1 @@
-# A curation of all codes and queries from projects in my portfolio (disha.page).
+# A curation of all codes and queries from projects in my portfolio (bit.ly/oluwaseyi-ibikunle-portfolio)
