@@ -6,18 +6,18 @@ GO
 
 --Creating the Members table
 CREATE TABLE Members (
-												MemberID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-												FirstName nvarchar(50) NOT NULL CHECK (FirstName = UPPER(LEFT(FirstName, 1)) + LOWER(SUBSTRING(FirstName, 2, LEN(FirstName) - 1))),
-												LastName nvarchar(50) NOT NULL CHECK (LastName = UPPER(LEFT(LastName, 1)) + LOWER(SUBSTRING(LastName, 2, LEN(LastName) - 1))),
-												ContactAddress nvarchar(200) NOT NULL,
-												DOB date NOT NULL,
-												EmailAddress nvarchar(100) NULL CHECK (EmailAddress LIKE '%_@_%._%'),
-												TelephoneNumber char(11) NULL,
-												UserName nvarchar(10) UNIQUE NOT NULL CHECK (LEN(UserName) >= 4 AND UserName = LOWER(UserName)),
-												PWD nvarchar(16) NOT NULL CHECK (LEN(PWD) >= 8),
-												DateJoined date NOT NULL,
-												DateLeft date NULL
-												);
+         		MemberID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+			FirstName nvarchar(50) NOT NULL CHECK (FirstName = UPPER(LEFT(FirstName, 1)) + LOWER(SUBSTRING(FirstName, 2, LEN(FirstName) - 1))),
+			LastName nvarchar(50) NOT NULL CHECK (LastName = UPPER(LEFT(LastName, 1)) + LOWER(SUBSTRING(LastName, 2, LEN(LastName) - 1))),
+			ContactAddress nvarchar(200) NOT NULL,
+			DOB date NOT NULL,
+			EmailAddress nvarchar(100) NULL CHECK (EmailAddress LIKE '%_@_%._%'),
+			TelephoneNumber char(11) NULL,
+			UserName nvarchar(10) UNIQUE NOT NULL CHECK (LEN(UserName) >= 4 AND UserName = LOWER(UserName)),
+			PWD nvarchar(16) NOT NULL CHECK (LEN(PWD) >= 8),
+			DateJoined date NOT NULL,
+			DateLeft date NULL
+		     );
 GO
 
 CREATE TRIGGER EncryptPassword
@@ -33,15 +33,15 @@ END;
 
 --Creating the Catalogue table
 CREATE TABLE Catalogue (
-												 ItemID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-												 Title nvarchar(100) NOT NULL,
-												 ItemType nvarchar(20) NOT NULL CHECK (ItemType IN ('Book', 'Journal', 'DVD', 'Other Media')),
-												 Author nvarchar(50) NOT NULL,
-												 YearOfPublication date NOT NULL CHECK (YearOfPublication = DATEFROMPARTS(DATEPART(YEAR, YearOfPublication), 1, 1)),
-												 DateAdded date NOT NULL,
-												 CurrentStatus nvarchar(20) NOT NULL CHECK (CurrentStatus IN ('On Loan', 'Overdue', 'Available', 'Lost/Removed')),
-												 ISBN char(17) NULL
-												);
+			ItemID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+			Title nvarchar(100) NOT NULL,
+			ItemType nvarchar(20) NOT NULL CHECK (ItemType IN ('Book', 'Journal', 'DVD', 'Other Media')),
+			Author nvarchar(50) NOT NULL,
+			YearOfPublication date NOT NULL CHECK (YearOfPublication = DATEFROMPARTS(DATEPART(YEAR, YearOfPublication), 1, 1)),
+			DateAdded date NOT NULL,
+			CurrentStatus nvarchar(20) NOT NULL CHECK (CurrentStatus IN ('On Loan', 'Overdue', 'Available', 'Lost/Removed')),
+			ISBN char(17) NULL
+			);
 
 --Creating LostRemoved table
 CREATE TABLE LostRemoved (
