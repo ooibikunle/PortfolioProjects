@@ -6,12 +6,12 @@ GO
 
 --Creating the Members table
 CREATE TABLE Members (
-         		          MemberID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-			                FirstName nvarchar(50) NOT NULL CHECK (FirstName = UPPER(LEFT(FirstName, 1)) + LOWER(SUBSTRING(FirstName, 2, LEN(FirstName) - 1))),
-			                LastName nvarchar(50) NOT NULL CHECK (LastName = UPPER(LEFT(LastName, 1)) + LOWER(SUBSTRING(LastName, 2, LEN(LastName) - 1))),
-			                ContactAddress nvarchar(200) NOT NULL,
-			                DOB date NOT NULL,
-			                EmailAddress nvarchar(100) NULL CHECK (EmailAddress LIKE '%_@_%._%'),
+         		MemberID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+			FirstName nvarchar(50) NOT NULL CHECK (FirstName = UPPER(LEFT(FirstName, 1)) + LOWER(SUBSTRING(FirstName, 2, LEN(FirstName) - 1))),
+			LastName nvarchar(50) NOT NULL CHECK (LastName = UPPER(LEFT(LastName, 1)) + LOWER(SUBSTRING(LastName, 2, LEN(LastName) - 1))),
+			ContactAddress nvarchar(200) NOT NULL,
+			DOB date NOT NULL,
+			EmailAddress nvarchar(100) NULL CHECK (EmailAddress LIKE '%_@_%._%'),
 			TelephoneNumber char(11) NULL,
 			UserName nvarchar(10) UNIQUE NOT NULL CHECK (LEN(UserName) >= 4 AND UserName = LOWER(UserName)),
 			PWD nvarchar(16) NOT NULL CHECK (LEN(PWD) >= 8),
@@ -45,10 +45,10 @@ CREATE TABLE Catalogue (
 
 --Creating LostRemoved table
 CREATE TABLE LostRemoved (
-														LostRemovedID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-														ItemID int NOT NULL FOREIGN KEY (ItemID) REFERENCES Catalogue (ItemID),
-														DateLostRemoved date NOT NULL
-														);
+			   LostRemovedID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+			   ItemID int NOT NULL FOREIGN KEY (ItemID) REFERENCES Catalogue (ItemID),
+			   DateLostRemoved date NOT NULL
+			  );
 
 --Creating the Loans table
 CREATE TABLE Loans (
