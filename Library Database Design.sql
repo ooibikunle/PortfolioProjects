@@ -52,14 +52,14 @@ CREATE TABLE LostRemoved (
 
 --Creating the Loans table
 CREATE TABLE Loans (
-										  LoanID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-										  MemberID int NOT NULL FOREIGN KEY (MemberID) REFERENCES Members (MemberID), 
-										  ItemID int NOT NULL FOREIGN KEY (ItemID) REFERENCES Catalogue (ItemID),
-										  LoanDate date NOT NULL,
-										  DueDate AS DATEADD(day, 30, LoanDate) PERSISTED,
-										  ReturnDate date NULL,
-										  OverDueDays int NULL
-										 );
+		     LoanID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+		     MemberID int NOT NULL FOREIGN KEY (MemberID) REFERENCES Members (MemberID), 
+		     ItemID int NOT NULL FOREIGN KEY (ItemID) REFERENCES Catalogue (ItemID),
+		     LoanDate date NOT NULL,
+		     DueDate AS DATEADD(day, 30, LoanDate) PERSISTED,
+		     ReturnDate date NULL,
+		     OverDueDays int NULL
+		    );
 
 GO
 
