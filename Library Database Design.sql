@@ -1,3 +1,4 @@
+--Part 1: Database and tables
 --Creating the database
 CREATE DATABASE TheLibrary;
 
@@ -6,18 +7,18 @@ GO
 
 --Creating the Members table
 CREATE TABLE Members (
-         		MemberID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-			FirstName nvarchar(50) NOT NULL CHECK (FirstName = UPPER(LEFT(FirstName, 1)) + LOWER(SUBSTRING(FirstName, 2, LEN(FirstName) - 1))),
-			LastName nvarchar(50) NOT NULL CHECK (LastName = UPPER(LEFT(LastName, 1)) + LOWER(SUBSTRING(LastName, 2, LEN(LastName) - 1))),
-			ContactAddress nvarchar(200) NOT NULL,
-			DOB date NOT NULL,
-			EmailAddress nvarchar(100) NULL CHECK (EmailAddress LIKE '%_@_%._%'),
-			TelephoneNumber char(11) NULL,
-			UserName nvarchar(10) UNIQUE NOT NULL CHECK (LEN(UserName) >= 4 AND UserName = LOWER(UserName)),
-			PWD nvarchar(16) NOT NULL CHECK (LEN(PWD) >= 8),
-			DateJoined date NOT NULL,
-			DateLeft date NULL
-		     );
+												MemberID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+												FirstName nvarchar(50) NOT NULL CHECK (FirstName = UPPER(LEFT(FirstName, 1)) + LOWER(SUBSTRING(FirstName, 2, LEN(FirstName) - 1))),
+												LastName nvarchar(50) NOT NULL CHECK (LastName = UPPER(LEFT(LastName, 1)) + LOWER(SUBSTRING(LastName, 2, LEN(LastName) - 1))),
+												ContactAddress nvarchar(200) NOT NULL,
+												DOB date NOT NULL,
+												EmailAddress nvarchar(100) NULL CHECK (EmailAddress LIKE '%_@_%._%'),
+												TelephoneNumber char(11) NULL,
+												UserName nvarchar(10) UNIQUE NOT NULL CHECK (LEN(UserName) >= 4 AND UserName = LOWER(UserName)),
+												PWD nvarchar(16) NOT NULL CHECK (LEN(PWD) >= 8),
+												DateJoined date NOT NULL,
+												DateLeft date NULL
+												);
 GO
 
 CREATE TRIGGER EncryptPassword
@@ -33,33 +34,33 @@ END;
 
 --Creating the Catalogue table
 CREATE TABLE Catalogue (
-			ItemID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-			Title nvarchar(100) NOT NULL,
-			ItemType nvarchar(20) NOT NULL CHECK (ItemType IN ('Book', 'Journal', 'DVD', 'Other Media')),
-			Author nvarchar(50) NOT NULL,
-			YearOfPublication date NOT NULL CHECK (YearOfPublication = DATEFROMPARTS(DATEPART(YEAR, YearOfPublication), 1, 1)),
-			DateAdded date NOT NULL,
-			CurrentStatus nvarchar(20) NOT NULL CHECK (CurrentStatus IN ('On Loan', 'Overdue', 'Available', 'Lost/Removed')),
-			ISBN char(17) NULL
-			);
+												 ItemID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+												 Title nvarchar(100) NOT NULL,
+												 ItemType nvarchar(20) NOT NULL CHECK (ItemType IN ('Book', 'Journal', 'DVD', 'Other Media')),
+												 Author nvarchar(50) NOT NULL,
+												 YearOfPublication date NOT NULL CHECK (YearOfPublication = DATEFROMPARTS(DATEPART(YEAR, YearOfPublication), 1, 1)),
+												 DateAdded date NOT NULL,
+												 CurrentStatus nvarchar(20) NOT NULL CHECK (CurrentStatus IN ('On Loan', 'Overdue', 'Available', 'Lost/Removed')),
+												 ISBN char(17) NULL
+												);
 
 --Creating LostRemoved table
 CREATE TABLE LostRemoved (
-			   LostRemovedID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-			   ItemID int NOT NULL FOREIGN KEY (ItemID) REFERENCES Catalogue (ItemID),
-			   DateLostRemoved date NOT NULL
-			  );
+														LostRemovedID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+														ItemID int NOT NULL FOREIGN KEY (ItemID) REFERENCES Catalogue (ItemID),
+														DateLostRemoved date NOT NULL
+														);
 
 --Creating the Loans table
 CREATE TABLE Loans (
-		     LoanID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-		     MemberID int NOT NULL FOREIGN KEY (MemberID) REFERENCES Members (MemberID), 
-		     ItemID int NOT NULL FOREIGN KEY (ItemID) REFERENCES Catalogue (ItemID),
-		     LoanDate date NOT NULL,
-		     DueDate AS DATEADD(day, 30, LoanDate) PERSISTED,
-		     ReturnDate date NULL,
-		     OverDueDays int NULL
-		    );
+										  LoanID int IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+										  MemberID int NOT NULL FOREIGN KEY (MemberID) REFERENCES Members (MemberID), 
+										  ItemID int NOT NULL FOREIGN KEY (ItemID) REFERENCES Catalogue (ItemID),
+										  LoanDate date NOT NULL,
+										  DueDate AS DATEADD(day, 30, LoanDate) PERSISTED,
+										  ReturnDate date NULL,
+										  OverDueDays int NULL
+										 );
 
 GO
 
@@ -113,8 +114,8 @@ CREATE TABLE Repayment (
 												  );
 
 
---Part 2
---Part 2a: A stored procedure to search the Catalogue table for matching character strings by Title and results sorted with the most recent publication date first
+--Part 2: Database objects
+--(a)Stored procedure to search the Catalogue table for matching character strings by Title and results sorted with the most recent publication date first
 CREATE PROCEDURE SearchCatalogueTitle
     @SearchTitle nvarchar(100)
 AS
@@ -125,7 +126,7 @@ BEGIN
     ORDER BY YearOfPublication DESC
 END;
 
---Part 2b: A user-defined function to return a full list of all items currently on loan which have a due date of less than 5 days from the current date
+--(b) User-defined function to return a full list of all items currently on loan which have a due date of less than 5 days from the current date
 CREATE FUNCTION NearDueLoans()
 RETURNS TABLE
 AS
@@ -136,7 +137,7 @@ RETURN
 		ON l.ItemID = c.ItemID
     WHERE l.ReturnDate IS NULL AND l.DueDate < DATEADD(day, 5, GETDATE());
 
---Part 2c: A stored procedure to insert a new member into the database
+--(c) Stored procedure to insert a new member into the database
 CREATE PROCEDURE InsertNewMember
     @FirstName nvarchar(50),
     @LastName nvarchar(50),
@@ -165,7 +166,7 @@ BEGIN
     VALUES (@FirstName, @LastName, @ContactAddress, @DOB, @EmailAddress, @TelephoneNumber, @UserName, @PWD, @DateJoined)
 END;
 
---Part 2d: A stored procedure to update the details for an existing member
+--(d) Stored procedure to update the details for an existing member
 CREATE PROCEDURE UpdateMemberDetails
 @MemberID int,
 @FirstName nvarchar(50),
@@ -195,7 +196,7 @@ WHERE MemberID = @MemberID;
 END;
 
 
---Part 3: A view of the loan history showing all previous and current loans, and including details of the item borrowed, borrowed date, due date and any associated fines for each loan.
+--(e) View of the loan history showing all previous and current loans, and including details of the item borrowed, borrowed date, due date and any associated fines for each loan.
 CREATE VIEW LoanHistory AS
 SELECT l.LoanID, m.FirstName + ' ' + m.LastName AS BorrowerName, c.Title, l.LoanDate, l.DueDate, f.AmountOwed AS AssociatedFines
 	FROM Loans AS l
@@ -207,7 +208,7 @@ SELECT l.LoanID, m.FirstName + ' ' + m.LastName AS BorrowerName, c.Title, l.Loan
 	ON l.LoanID = f.LoanID;
 
 
---Part 4: A trigger that updates the current status of an item to Available when the book is returned
+--(f) Trigger that updates the current status of an item to Available when the book is returned
 DROP TRIGGER IF EXISTS UpdateCatalogueStatus;
 
 GO
@@ -229,15 +230,15 @@ BEGIN
 END;
 
 
---Part 5: A SELECT query which allows the library to identify the total number of loans made on a specified date.
+--(g) SELECT query which allows the library to identify the total number of loans made on a specified date.
 SELECT LoanDate, COUNT(*) AS Total_Loans
 FROM Loans
 WHERE LoanDate = '2023-01-05'
 GROUP BY LoanDate;
 
 
---Part 6: Inserting data into the different tables
---Inserting records into the Members table
+--Part 3: Inserting dummy data into the different tables
+--(a) Inserting records into the Members table
 INSERT INTO Members (FirstName, LastName, ContactAddress, DOB, EmailAddress, TelephoneNumber, UserName, PWD, DateJoined, DateLeft)
 VALUES ('Oluwaseyi', 'Ibikunle', '55 Sugar Mill Square, Salford M5 5EB', '1993-11-28', NULL, '07494320610', 'seyifunmi', 'libraryMcr2', '2023-01-05', NULL),
 				('Oluwole', 'Ola', '5 Weaste Lane, Salford M6 6XR', '1992-07-23', 'wolexis@gmail.com', '07467867401', 'wolexis', 'Imaginary23', '2019-04-01', '2022-12-23'),
@@ -248,7 +249,7 @@ VALUES ('Oluwaseyi', 'Ibikunle', '55 Sugar Mill Square, Salford M5 5EB', '1993-1
 SELECT * 
 	FROM Members;
 
---Inserting records into the Catalogue table
+--(b) Inserting records into the Catalogue table
 INSERT INTO Catalogue (Title, ItemType, Author, YearOfPublication, DateAdded, CurrentStatus, ISBN)
 VALUES ('Half of a Yellow Sun', 'Book', 'Chimamanda N. Adichie', '2006', '2021-12-01', 'On Loan', '978-0-00-720028-3'),
        ('Gone Girl', 'Book', 'Gillian Flynn', '2012', '2022-01-01', 'Lost/Removed', '978-0-30-758836-4'),
@@ -262,7 +263,7 @@ VALUES ('Half of a Yellow Sun', 'Book', 'Chimamanda N. Adichie', '2006', '2021-1
 SELECT *
 	FROM Catalogue;
 
---Inserting records into the LostRemoved table
+--(c) Inserting records into the LostRemoved table
 INSERT INTO LostRemoved (ItemID, DateLostRemoved)
 VALUES (2, '2022-11-17'),
 				(6, '2023-04-09');
@@ -270,7 +271,7 @@ VALUES (2, '2022-11-17'),
 SELECT *
 	FROM LostRemoved;
 
---Inserting records into the Loans table
+--(d) Inserting records into the Loans table
 INSERT INTO Loans (MemberID, ItemID, LoanDate, ReturnDate)
 VALUES (1, 1, '2022-12-03', '2023-02-01'),
        (3, 5, '2023-01-05', '2023-01-30'),
@@ -284,7 +285,7 @@ SELECT *
 SELECT *
 	FROM Fines;
 
---Inserting records into Repayment table
+--(e) Inserting records into Repayment table
 INSERT INTO Repayment (FineID, AmountRepaid, OutstandingBal, DateRepaid, RepaymentMethod)
 VALUES (1, 1.25, 1.75, '2023-02-01', 'Card'),
 				(2, 0.10, 0.00, '2023-04-10', 'Cash');
@@ -292,15 +293,15 @@ VALUES (1, 1.25, 1.75, '2023-02-01', 'Card'),
 SELECT *
 	FROM Repayment
 
---Demonstrating the database (Parts 2-5)
---Part 2a: Executing the SearchCatalogueTitle stored procedure
+--Part 4: Demonstrating the additional database objects
+--(a) Executing the SearchCatalogueTitle stored procedure
 EXEC SearchCatalogueTitle @SearchTitle = '%the%';
 
---Part 2b: Executing the NearDueLoans user-defined function
+--(b) Executing the NearDueLoans user-defined function
 SELECT * 
 	FROM NearDueLoans();
 
---Part 2c: Executing the InsertNewMember stored procedure
+--(c) Executing the InsertNewMember stored procedure
 EXEC InsertNewMember
     @FirstName = 'Mary',
     @LastName = 'Aisagbonhi',
@@ -315,7 +316,7 @@ EXEC InsertNewMember
 SELECT * 
 	FROM Members;
 
---Part 2d: Executing the UpdateMemberDetails stored procedure
+--(d) Executing the UpdateMemberDetails stored procedure
 EXEC UpdateMemberDetails 
 	@MemberID = 6, 
 	@FirstName = 'Mary',
@@ -333,11 +334,11 @@ SELECT *
 	FROM Members 
 WHERE MemberID = 6;
 
---Part 3: Executing the LoanHistory view
+--(e) Executing the LoanHistory view
 SELECT * 
 	FROM LoanHistory;
 
---Part 4: Demonstrating the UpdateCatalogueStatus trigger
+--(f) Demonstrating the UpdateCatalogueStatus trigger
 --Step 1: Create and execute the UpdateCatalogueStatus trigger
 --Step 2: Update return date of LoanID 4 (ItemID 8) in the Loans table with current date
 UPDATE Loans
@@ -351,15 +352,15 @@ SELECT l.LoanID, c.ItemID, l.LoanDate, l.ReturnDate, c.CurrentStatus
 	ON l.ItemID = c.ItemID
 WHERE l.ItemID = 8;
 
---Part 5: Executing the SELECT statement
+--(g) Executing the SELECT statement
 SELECT LoanDate, COUNT(*) AS Total_Loans
 	FROM Loans
 WHERE LoanDate = '2023-01-05'
 GROUP BY LoanDate;
 
 
---Part 7: Additional database objects
---Part 7a: Creating a trigger on the Catalogue table to automatically populate the LostRemoved table when an item is recorded as lost/removed
+--Part 5: Additional database objects
+--(a) Creating a trigger on the Catalogue table to automatically populate the LostRemoved table when an item is recorded as lost/removed
 DROP TRIGGER IF EXISTS LostRemovedCatalogue;
 
 GO
@@ -386,7 +387,7 @@ WHERE ItemID = 4;
 SELECT *
 	From LostRemoved;
 
---Part 7b: Creating a view that tracks library membership
+--(b) Creating a view that tracks library membership
 CREATE VIEW MembershipTrend AS
 SELECT 
 	FORMAT(DateJoined, 'yyyy') AS TimePeriod,
